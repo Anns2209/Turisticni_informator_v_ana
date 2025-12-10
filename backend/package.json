@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "vitest --coverage",
     "test": "vitest run",
     "dev": "ts-node-dev --respawn src/server.ts",
     "db:migrate": "knex migrate:latest",
@@ -26,6 +25,7 @@
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
     "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^4.0.15",
     "dotenv": "^17.2.3",
     "jest": "^30.2.0",
     "knex": "^3.1.0",
