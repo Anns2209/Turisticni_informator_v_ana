@@ -1,14 +1,20 @@
-﻿/// <reference types="vitest" />
-
-import { defineConfig } from "vitest/config";
+﻿import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
   test: {
+    environment: "happy-dom",
     globals: true,
-    environment: "jsdom",
-    setupFiles: "./tests/setup.ts"
-  }
+    setupFiles: "./tests/setup.ts",
+    coverage: {
+      provider: "v8",
+      reportsDirectory: "./coverage",
+    },
+  },
 });
+
+
+
+
 
