@@ -1,1 +1,72 @@
+#  Turistični Informator – Individualni projekt
+
+Turistični Informator je spletna aplikacija, ki omogoča pregled držav, mest ter znamenitosti.  
+Projekt je razdeljen na **frontend** (React + TypeScript) in **backend** (Node.js + Express + PostgreSQL).  
+Za lokalni razvoj je pripravljena tudi **Docker infrastruktura** za bazo podatkov.
+
+Aplikacija je nastala kot samostojna nadgradnja obstoječega skupinskega projekta, skladno z zahtevami predmeta **Razvoj informacijskih rešitev in storitev**.
+
+---
+
+##  Funkcionalnosti
+
+### Frontend
+- React + TypeScript
+- Strani: *Domov*, *Znamenitosti*, *Admin*
+- Izbira države → prikaz mest in znamenitosti
+- Admin panel (dodajanje držav, mest, slik)
+- Uporaba API-ja preko `/api/*` proxyja
+
+### Backend
+- Express + TypeScript
+- REST API za:
+  - `/countries`
+  - `/countries/:id/cities`
+  - `/cities/:id`
+  - `/cities/:id/images`
+  - `/attractions`
+  - `/attractions/:id`
+- Povezava na PostgreSQL preko `pg`
+- Migracije + seeds (Knex)
+
+### Infrastruktura
+- Docker Compose za PostgreSQL
+- Knex migracije in semena za polnitev baze
+- Ločen zagon frontend in backend
+
+---
+
+
+---
+
+##  Kako zagnati projekt
+
+### 1 Zagon baze (Docker)
+
+Pojdi v mapo `infra`:
+
+```bash
+cd infra
+docker compose up -d
+
+### 2 Zagon backend 
+
+cd backend
+npm install
+npm run dev
+
+### backend tece na: http://localhost:3000
+
+### 3 Zagon frontend
+
+cd frontend
+npm install
+npm run dev
+
+### frontend tece na: http://localhost:5173
+
+
+
+
+
 
