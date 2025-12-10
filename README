@@ -49,13 +49,21 @@ Pojdi v mapo `infra`:
 cd infra
 docker compose up -d
 
+<<<<<<< HEAD
 ### 2 Zagon backend 
+=======
+### 2 Zagon backend
+>>>>>>> 58d364d (Update README)
 
 cd backend
 npm install
 npm run dev
 
+<<<<<<< HEAD
 ### backend tece na: http://localhost:3000
+=======
+### Backend tece na: http://localhost:3000
+>>>>>>> 58d364d (Update README)
 
 ### 3 Zagon frontend
 
@@ -63,7 +71,11 @@ cd frontend
 npm install
 npm run dev
 
+<<<<<<< HEAD
 ### frontend tece na: http://localhost:5173
+=======
+### frontend tece na: http://localhost:3000
+>>>>>>> 58d364d (Update README)
 
 
 
