@@ -11,25 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-        postgres:
-            image: postgres:15
-            ports: ['5432:5432']
-            env:
-                POSTGRES_USER: test_user
-                POSTGRES_PASSWORD: test_password
-                POSTGRES_DB: touristinfo
-            options: >-
-                --health-cmd "pg_isready -U test_user"
-                --health-interval 10s
-                --health-timeout 5s
-                --health-retries 5
+      postgres:
+        image: postgres:15
+        ports: ['5432:5432']
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: touristinfo
+        options: >-
+          --health-cmd "pg_isready -U test_user"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_USER: test_user
-        DB_PASSWORD: test_password
-        DB_NAME: touristinfo
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: test_user
+      DB_PASSWORD: test_password
+      DB_NAME: touristinfo
 
     steps:
       - name: Checkout repository
@@ -45,11 +45,34 @@ jobs:
           cd backend
           npm install
 
+      - name: Install Postgres client and wait for Postgres
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U $DB_USER && break
+            echo "Waiting for Postgres... ($i/30)"
+            sleep 1
+          done
+        env:
+          DB_USER: ${{ job.env.DB_USER }}
+
+      - name: Ensure database exists and apply schema
+        run: |
+          export PGPASSWORD="$DB_PASSWORD"
+          # create DB (ignore error if already exists)
+          psql -h localhost -U "$DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME;" || true
+          # apply schema - make sure backend/db/init.sql exists in the repo
+          psql -h localhost -U "$DB_USER" -d "$DB_NAME" -f backend/db/init.sql
+        env:
+          DB_USER: ${{ job.env.DB_USER }}
+          DB_PASSWORD: ${{ job.env.DB_PASSWORD }}
+          DB_NAME: ${{ job.env.DB_NAME }}
 
       - name: Run backend tests with coverage
         run: |
           cd backend
-          npm test 
+          npm test
 
       - name: Upload backend coverage report
         uses: actions/upload-artifact@v4
@@ -78,7 +101,7 @@ jobs:
       - name: Run frontend tests with coverage
         run: |
           cd frontend
-          npm test 
+          npm test
 
       - name: Upload frontend coverage report
         uses: actions/upload-artifact@v4
