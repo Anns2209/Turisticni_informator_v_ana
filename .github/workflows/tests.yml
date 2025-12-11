@@ -15,19 +15,18 @@ jobs:
         image: postgres:15
         ports: ['5432:5432']
         env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: touristinfo
         options: >-
-          --health-cmd "pg_isready -U test_user"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     env:
       DB_HOST: localhost
       DB_PORT: 5432
-      # Align these with the Postgres service above:
       DB_USER: test_user
       DB_PASSWORD: test_password
       DB_NAME: touristinfo
@@ -36,32 +35,44 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Postgres client and wait for Postgres
+      - name: Install Postgres client
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
-          export PGPASSWORD="$DB_PASSWORD"
+
+      - name: Wait for Postgres to be ready
+        run: |
           for i in {1..30}; do
-            pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" && break
+            pg_isready -h "$DB_HOST" -p "$DB_PORT" -U postgres && break
             echo "Waiting for Postgres... ($i/30)"
             sleep 1
           done
-        env:
-          DB_HOST: ${{ job.env.DB_HOST }}
-          DB_PORT: ${{ job.env.DB_PORT }}
-          DB_USER: ${{ job.env.DB_USER }}
-          DB_PASSWORD: ${{ job.env.DB_PASSWORD }}
 
-      - name: Ensure database exists and apply schema
+      - name: Create test user + apply schema
         run: |
+          export PGPASSWORD="postgres"
+
+          # Create test user if not exists
+          psql -h "$DB_HOST" -U postgres -d postgres -c \
+            "DO \$\$
+             BEGIN
+               IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$DB_USER') THEN
+                 CREATE ROLE $DB_USER LOGIN PASSWORD '$DB_PASSWORD';
+               END IF;
+             END
+             \$\$;"
+
+          # Ensure database exists
+          psql -h "$DB_HOST" -U postgres -d postgres -c \
+            "CREATE DATABASE $DB_NAME OWNER $DB_USER;" || true
+
+          # Grant privileges
+          psql -h "$DB_HOST" -U postgres -d postgres -c \
+            "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+
+          # Apply schema as test_user
           export PGPASSWORD="$DB_PASSWORD"
-          psql -h "$DB_HOST" -U "$DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME;" || true
           psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f backend/db/init.sql
-        env:
-          DB_HOST: ${{ job.env.DB_HOST }}
-          DB_USER: ${{ job.env.DB_USER }}
-          DB_PASSWORD: ${{ job.env.DB_PASSWORD }}
-          DB_NAME: ${{ job.env.DB_NAME }}
 
   frontend-tests:
     name: Frontend Tests
@@ -91,5 +102,3 @@ jobs:
         with:
           name: frontend-coverage
           path: frontend/coverage
-
-
