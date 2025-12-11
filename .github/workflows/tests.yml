@@ -45,6 +45,39 @@ jobs:
           cd backend
           npm install
 
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Apply test DB schema
+        env:
+          PGPASSWORD: ${{ env.DB_PASSWORD }}
+        run: |
+          # If you have a schema file in the repo, apply it:
+          psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f backend/db/schema.sql
+
+          # OR create the minimal tables inline (example):
+          PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER -d $DB_NAME -c "
+            CREATE TABLE IF NOT EXISTS countries (
+              id SERIAL PRIMARY KEY,
+              code VARCHAR(10),
+              name VARCHAR(255)
+            );
+            CREATE TABLE IF NOT EXISTS cities (
+              id SERIAL PRIMARY KEY,
+              country_id INTEGER REFERENCES countries(id),
+              name VARCHAR(255),
+              description TEXT,
+              hero_url VARCHAR(255)
+            );
+            CREATE TABLE IF NOT EXISTS attractions (
+              id SERIAL PRIMARY KEY,
+              city_id INTEGER REFERENCES cities(id),
+              name VARCHAR(255),
+              type VARCHAR(100),
+              thumbnail_url VARCHAR(255)
+            );
+          "
+
       - name: Run backend tests with coverage
         run: |
           cd backend
