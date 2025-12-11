@@ -123,8 +123,6 @@ describe("Frontend basic rendering tests", () => {
   it("does not render city list when no country is selected", () => {
     renderApp();
     
-    // City names are mocked: Ljubljana, Maribor
-    // If they appear → CityList is incorrectly rendered without countryId
     const lj = screen.queryByText("Ljubljana");
     const mb = screen.queryByText("Maribor");
 
