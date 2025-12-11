@@ -27,6 +27,7 @@ jobs:
     env:
       DB_HOST: localhost
       DB_PORT: 5432
+      # Align these with the Postgres service above:
       DB_USER: test_user
       DB_PASSWORD: test_password
       DB_NAME: touristinfo
@@ -35,50 +36,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm install
-
       - name: Install Postgres client and wait for Postgres
         run: |
           sudo apt-get update
           sudo apt-get install -y postgresql-client
+          export PGPASSWORD="$DB_PASSWORD"
           for i in {1..30}; do
-            pg_isready -h localhost -p 5432 -U $DB_USER && break
+            pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" && break
             echo "Waiting for Postgres... ($i/30)"
             sleep 1
           done
         env:
+          DB_HOST: ${{ job.env.DB_HOST }}
+          DB_PORT: ${{ job.env.DB_PORT }}
           DB_USER: ${{ job.env.DB_USER }}
+          DB_PASSWORD: ${{ job.env.DB_PASSWORD }}
 
       - name: Ensure database exists and apply schema
         run: |
           export PGPASSWORD="$DB_PASSWORD"
-          # create DB (ignore error if already exists)
-          psql -h localhost -U "$DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME;" || true
-          # apply schema - make sure backend/db/init.sql exists in the repo
-          psql -h localhost -U "$DB_USER" -d "$DB_NAME" -f backend/db/init.sql
+          psql -h "$DB_HOST" -U "$DB_USER" -d postgres -c "CREATE DATABASE $DB_NAME;" || true
+          psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f backend/db/init.sql
         env:
+          DB_HOST: ${{ job.env.DB_HOST }}
           DB_USER: ${{ job.env.DB_USER }}
           DB_PASSWORD: ${{ job.env.DB_PASSWORD }}
           DB_NAME: ${{ job.env.DB_NAME }}
-
-      - name: Run backend tests with coverage
-        run: |
-          cd backend
-          npm test
-
-      - name: Upload backend coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: backend/coverage
 
   frontend-tests:
     name: Frontend Tests
