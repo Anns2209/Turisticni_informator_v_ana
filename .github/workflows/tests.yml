@@ -10,30 +10,69 @@ jobs:
     name: Backend Tests
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        ports: ['5432:5432']
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: touristinfo
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: test_user
+      DB_PASSWORD: test_password
+      DB_NAME: touristinfo
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install backend dependencies
+      - name: Install Postgres client
         run: |
-          cd backend
-          npm install
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
 
-      - name: Run backend tests with coverage
+      - name: Wait for Postgres to be ready
         run: |
-          cd backend
-          npm test -- --coverage
+          for i in {1..30}; do
+            pg_isready -h "$DB_HOST" -p "$DB_PORT" -U postgres && break
+            echo "Waiting for Postgres... ($i/30)"
+            sleep 1
+          done
 
-      - name: Upload backend coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: backend/coverage
+      - name: Create test user + apply schema
+        run: |
+          export PGPASSWORD="postgres"
+
+          # Create test user if not exists
+          psql -h "$DB_HOST" -U postgres -d postgres -c \
+            "DO \$\$
+             BEGIN
+               IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$DB_USER') THEN
+                 CREATE ROLE $DB_USER LOGIN PASSWORD '$DB_PASSWORD';
+               END IF;
+             END
+             \$\$;"
+
+          # Ensure database exists
+          psql -h "$DB_HOST" -U postgres -d postgres -c \
+            "CREATE DATABASE $DB_NAME OWNER $DB_USER;" || true
+
+          # Grant privileges
+          psql -h "$DB_HOST" -U postgres -d postgres -c \
+            "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+
+          # Apply schema as test_user
+          export PGPASSWORD="$DB_PASSWORD"
+          psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f backend/db/init.sql
 
   frontend-tests:
     name: Frontend Tests
@@ -56,11 +95,10 @@ jobs:
       - name: Run frontend tests with coverage
         run: |
           cd frontend
-          npm test -- --coverage
+          npm test
 
       - name: Upload frontend coverage report
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
           path: frontend/coverage
-

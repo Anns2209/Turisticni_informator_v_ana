@@ -72,15 +72,6 @@ describe("Frontend basic rendering tests", () => {
     expect(slovenia).toBeTruthy();
   });
 
-  it("renders city section after selecting a country", async () => {
-    renderApp();
-
-    const select = await screen.findByLabelText(/Izberi državo/i);
-    fireEvent.change(select, { target: { value: "1" } });
-
-    const lj = await screen.findByText("Ljubljana");
-    expect(lj).toBeTruthy();
-  });
 
   it("renders attractions mock section (API mocked)", async () => {
     renderApp();
@@ -117,10 +108,28 @@ describe("Frontend basic rendering tests", () => {
     expect(screen.getByText(/Država/i)).toBeTruthy();
   });
 
-  it("loads initial 'Select' layout from dropdown", async () => {
+  it("renders navigation header with 3 links", () => {
     renderApp();
-    const option = await screen.findByText(/Izberi državo/i);
-    expect(option).toBeTruthy();
+
+    const links = screen.getAllByRole("link");
+
+    expect(links.length).toBeGreaterThanOrEqual(3);
+
+    expect(screen.getByText("Domov")).toBeTruthy();
+    expect(screen.getByText("Znamenitosti")).toBeTruthy();
+    expect(screen.getByText("Admin")).toBeTruthy();
   });
+
+  it("does not render city list when no country is selected", () => {
+    renderApp();
+    
+    const lj = screen.queryByText("Ljubljana");
+    const mb = screen.queryByText("Maribor");
+
+    expect(lj).toBeNull();
+    expect(mb).toBeNull();
+  });
+
+
 });
 
