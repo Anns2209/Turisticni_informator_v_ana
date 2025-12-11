@@ -15,9 +15,9 @@ jobs:
         image: postgres:15
         ports: ['5432:5432']
         env:
-          DB_USER: localhost
-          DB_PASSWORD: app
-          DB_NAME: touristinfo
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: tourinfo
         options: >-
           --health-cmd "pg_isready -U test_user"
           --health-interval 10s
