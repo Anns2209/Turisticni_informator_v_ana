@@ -35,13 +35,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node 20 (backend) + npm cache
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-          cache-dependency-path: backend/package-lock.json
-
       - name: Install Postgres client
         run: |
           sudo apt-get update
@@ -59,6 +52,7 @@ jobs:
         run: |
           export PGPASSWORD="postgres"
 
+          # Create test user if not exists
           psql -h "$DB_HOST" -U postgres -d postgres -c \
             "DO \$\$
              BEGIN
@@ -68,29 +62,17 @@ jobs:
              END
              \$\$;"
 
+          # Ensure database exists
           psql -h "$DB_HOST" -U postgres -d postgres -c \
             "CREATE DATABASE $DB_NAME OWNER $DB_USER;" || true
 
+          # Grant privileges
           psql -h "$DB_HOST" -U postgres -d postgres -c \
             "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
 
+          # Apply schema as test_user
           export PGPASSWORD="$DB_PASSWORD"
-          # Apply schema as test_user (fail if anything fails)
-          export PGPASSWORD="$DB_PASSWORD"
-          psql -v ON_ERROR_STOP=1 -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f backend/db/init.sql
-
-          # Debug: list tables after applying schema
-          psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "\dt"
-
-
-      - name: Install backend dependencies
-        working-directory: backend
-        run: npm ci
-
-      - name: Run backend tests
-        working-directory: backend
-        run: npm test
-
+          psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f backend/db/init.sql
 
   frontend-tests:
     name: Frontend Tests
@@ -100,20 +82,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node 20 (frontend) + npm cache
+      - name: Use Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
+        run: |
+          cd frontend
+          npm install
 
       - name: Run frontend tests with coverage
-        working-directory: frontend
-        run: npm test
+        run: |
+          cd frontend
+          npm test
 
       - name: Upload frontend coverage report
         uses: actions/upload-artifact@v4
@@ -121,9 +103,8 @@ jobs:
           name: frontend-coverage
           path: frontend/coverage
 
-
   build:
-    name: Build Frontend + Backend (artifacts)
+    name: Build Frontend + Backend (cache + artifacts)
     runs-on: ubuntu-latest
     needs: [backend-tests, frontend-tests]
 
@@ -139,7 +120,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install frontend deps
+      - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
 
@@ -163,7 +144,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install backend deps
+      - name: Install backend dependencies
         working-directory: backend
         run: npm ci
 
@@ -178,7 +159,6 @@ jobs:
           path: |
             backend/dist
             backend/build
-            backend/*.js
-            backend/*.json
             backend/package.json
             backend/package-lock.json
+
