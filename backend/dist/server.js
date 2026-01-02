@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // server.ts
-require("dotenv/config");
+
 const express_1 = __importDefault(require("express"));
 const db_1 = require("./db");
 const app = (0, express_1.default)();
