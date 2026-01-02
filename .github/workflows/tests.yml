@@ -179,8 +179,11 @@ jobs:
 
       - name: Build & push backend image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/touristinfo-backend:latest ./backend
-          docker push ${{ secrets.DOCKER_USERNAME }}/touristinfo-backend:latest
+          IMAGE=${{ secrets.DOCKER_USERNAME }}/touristinfo-backend
+          docker build -t $IMAGE:latest -t $IMAGE:${{ github.sha }} ./backend
+          docker push $IMAGE:latest
+          docker push $IMAGE:${{ github.sha }}
+
 
       - name: Build & push frontend image
         run: |
