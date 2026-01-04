@@ -181,3 +181,22 @@ app.use((err, req, res, next) => {
 });
 // EXPORT ONLY APP — NO LISTEN HERE!
 exports.default = app;
+
+// ===== Render/Prod startup =====
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION:", err);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("UNHANDLED REJECTION:", reason);
+  process.exit(1);
+});
+
+// Render provides PORT. Must listen on 0.0.0.0 in containers.
+const PORT = Number(process.env.PORT) || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Backend listening on port ${PORT}`);
+});
+
