@@ -194,9 +194,7 @@ process.on("unhandledRejection", (reason) => {
 });
 
 // Render provides PORT. Must listen on 0.0.0.0 in containers.
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, "0.0.0.0");
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Backend listening on port ${PORT}`);
-});
 
