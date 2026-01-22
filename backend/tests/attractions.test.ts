@@ -9,6 +9,7 @@ describe("Attractions endpoints", () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
+  
   it("returns 400 for invalid attraction id", async () => {
     const res = await request(app).get("/attractions/abc");
     expect(res.status).toBe(400);
