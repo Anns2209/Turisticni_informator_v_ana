@@ -288,10 +288,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Quality Gate: naj blokira samo production
-      - name: SonarCloud Quality Gate
+      - name: Quality Gate (block production)
         if: github.ref == 'refs/heads/production'
-        uses: SonarSource/sonarcloud-quality-gate-action@v1.0.0
+        uses: SonarSource/sonarqube-quality-gate-action@v1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 
 
