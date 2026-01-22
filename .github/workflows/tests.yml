@@ -224,7 +224,7 @@ jobs:
   docker_prod:
       name: Build & Push Docker Images (prod)
       runs-on: ubuntu-latest
-      needs: build
+      needs: [build, sonarcloud]
       if: github.ref == 'refs/heads/production'
       environment: Production
 
@@ -263,4 +263,35 @@ jobs:
 
       - name: Trigger frontend deploy
         run: curl -X POST "${{ secrets.RENDER_FRONTEND_HOOK }}"
+
+  sonarcloud:
+    name: SonarCloud Scan
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+
+    steps:
+      - name: Checkout (full history for Sonar)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download frontend coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+
+      - name: SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Quality Gate: naj blokira samo production
+      - name: SonarCloud Quality Gate
+        if: github.ref == 'refs/heads/production'
+        uses: SonarSource/sonarcloud-quality-gate-action@v1.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 
