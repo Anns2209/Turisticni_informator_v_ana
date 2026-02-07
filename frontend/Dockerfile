@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # Serve stage
-FROM nginx:alpine
+FROM nginx:1.29.5-alpine3.23
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["node", "dist/index.js"]
