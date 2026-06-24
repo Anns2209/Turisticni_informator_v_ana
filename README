@@ -1,31 +1,19 @@
-# Turističnih Informator 🌍
+# Turističnih Informator 
 
-Dobrodošli v **Turističnem Informatorju** - vašem digitalnem spremljevalcu za odkrivanje najboljših turističnih destinacij, atrakcij in izkušenj!
-
-## 📋 Kazalo
-
-- [O Projektu](#o-projektu)
-- [Značilnosti](#značilnosti)
-- [Namestitev](#namestitev)
-- [Uporaba](#uporaba)
-- [Prispevanje](#prispevanje)
-- [Licenca](#licenca)
-- [Kontakt](#kontakt)
-
-## 🎯 O Projektu
+## O Projektu
 
 Turističnih Informator je aplikacija, namenjena turistom in popotnikom, ki želijo izvedeti več o različnih destinacijah, lokalnih atrakcijah, nastanitvah in gastronomskih doživetjih. Projekt ponuja celovit pregled turističnih ponudb s poudarkom na slovenski kulturi in naravnih lepotah.
 
-## ✨ Značilnosti
+##  Značilnosti
 
-- 📍 **Iskanje destinacij** - Enostaven pregled turističnih lokacij po celotnem svetu
-- 🏨 **Informacije o nastanitvah** - Pregledi hotelov, apartmajev in других namestitev
-- 🍽️ **Kulinarični vodič** - Priporočila lokalnih restavracij in specialitet
-- 🗺️ **Interaktivni zemljevidi** - Vizualni prikaz atrakcij in rutin
-- ⭐ **Ocene in komentarji** - Izkušnje drugih potnikov
-- 🎫 **Praktične informacije** - Ure obratovanja, vstopnine, kontaktni podatki
+-  **Iskanje destinacij** - Enostaven pregled turističnih lokacij po celotnem svetu
+-  **Informacije o nastanitvah** - Pregledi hotelov, apartmajev in других namestitev
+-  **Kulinarični vodič** - Priporočila lokalnih restavracij in specialitet
+-  **Interaktivni zemljevidi** - Vizualni prikaz atrakcij in rutin
+-  **Ocene in komentarji** - Izkušnje drugih potnikov
+-  **Praktične informacije** - Ure obratovanja, vstopnine, kontaktni podatki
 
-## 🚀 Namestitev
+##  Namestitev
 
 ### Predpogoji
 
@@ -53,7 +41,7 @@ Turističnih Informator je aplikacija, namenjena turistom in popotnikom, ki žel
 
 4. Aplikacija se bo odprla na naslovu `http://localhost:3000`
 
-## 📖 Uporaba
+##  Uporaba
 
 ### Osnovni koraki
 
@@ -70,28 +58,3 @@ Turističnih Informator je aplikacija, namenjena turistom in popotnikom, ki žel
 - Rezerviraj: Izberi hotel in nastanitev
 ```
 
-## 🤝 Prispevanje
-
-Veseli smo vsakega prispevka! Če želite pomagati pri razvoju projekta:
-
-1. Forkajte repozitorij
-2. Ustvarite novo vejo (`git checkout -b feature/vaša-lastnost`)
-3. Commititajte spremembe (`git commit -m 'Dodaj novo lastnost'`)
-4. Pushajte na vejo (`git push origin feature/vaša-lastnost`)
-5. Odprite Pull Request
-
-## 📝 Licenca
-
-Ta projekt je licenciran pod licenco MIT - glej datoteko [LICENSE](LICENSE) za več podrobnosti.
-
-## 📧 Kontakt
-
-Za vprašanja ali predloge nas kontaktirajte:
-
-- **Email:** info@turisticni-informator.si
-- **GitHub Issues:** [Odpri težavo](https://github.com/Anns2209/Turisticni_informator/issues)
-- **Twitter:** [@TuristichniInfo](https://twitter.com/TuristichniInfo)
-
----
-
-**Srečni potovanja!** 🧳✈️
